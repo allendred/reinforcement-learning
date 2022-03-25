@@ -78,7 +78,10 @@ def plot_episode_stats(stats, smoothing_window=10, noshow=False):
     plt.plot(rewards_smoothed)
     plt.xlabel("Episode")
     plt.ylabel("Episode Reward (Smoothed)")
-    plt.title("Episode Reward over Time (Smoothed over window size {})".format(smoothing_window))
+    plt.title(
+        f"Episode Reward over Time (Smoothed over window size {smoothing_window})"
+    )
+
     if noshow:
         plt.close(fig2)
     else:

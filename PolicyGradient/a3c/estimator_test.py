@@ -74,7 +74,7 @@ class PolicyEstimatorTest(tf.test.TestCase):
       grads_ = sess.run(grads, feed_dict)
 
       # Apply calculated gradients
-      grad_feed_dict = { k: v for k, v in zip(grads, grads_) }
+      grad_feed_dict = dict(zip(grads, grads_))
       _ = sess.run(estimator.train_op, grad_feed_dict)
 
 
@@ -126,7 +126,7 @@ class ValueEstimatorTest(tf.test.TestCase):
       grads_ = sess.run(grads, feed_dict)
 
       # Apply calculated gradients
-      grad_feed_dict = { k: v for k, v in zip(grads, grads_) }
+      grad_feed_dict = dict(zip(grads, grads_))
       _ = sess.run(estimator.train_op, grad_feed_dict)
 
 if __name__ == '__main__':

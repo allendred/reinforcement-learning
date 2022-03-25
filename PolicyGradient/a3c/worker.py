@@ -84,8 +84,11 @@ class Worker(object):
 
     # Op to copy params from global policy/valuenets
     self.copy_params_op = make_copy_params_op(
-      tf.contrib.slim.get_variables(scope="global", collection=tf.GraphKeys.TRAINABLE_VARIABLES),
-      tf.contrib.slim.get_variables(scope=self.name+'/', collection=tf.GraphKeys.TRAINABLE_VARIABLES))
+        tf.contrib.slim.get_variables(
+            scope="global", collection=tf.GraphKeys.TRAINABLE_VARIABLES),
+        tf.contrib.slim.get_variables(
+            scope=f'{self.name}/', collection=tf.GraphKeys.TRAINABLE_VARIABLES),
+    )
 
     self.vnet_train_op = make_train_op(self.value_net, self.global_value_net)
     self.pnet_train_op = make_train_op(self.policy_net, self.global_policy_net)
@@ -105,7 +108,7 @@ class Worker(object):
           transitions, local_t, global_t = self.run_n_steps(t_max, sess)
 
           if self.max_global_steps is not None and global_t >= self.max_global_steps:
-            tf.logging.info("Reached global step {}. Stopping.".format(global_t))
+            tf.logging.info(f"Reached global step {global_t}. Stopping.")
             coord.request_stop()
             return
 
@@ -143,7 +146,7 @@ class Worker(object):
       global_t = next(self.global_counter)
 
       if local_t % 100 == 0:
-        tf.logging.info("{}: local Step {}, global step {}".format(self.name, local_t, global_t))
+        tf.logging.info(f"{self.name}: local Step {local_t}, global step {global_t}")
 
       if done:
         self.state = atari_helpers.atari_make_initial_state(self.sp.process(self.env.reset()))
@@ -161,11 +164,8 @@ class Worker(object):
       sess: A Tensorflow session
     """
 
-    # If we episode was not done we bootstrap the value from the last state
-    reward = 0.0
-    if not transitions[-1].done:
-      reward = self._value_net_predict(transitions[-1].next_state, sess)
-
+    reward = (0.0 if transitions[-1].done else self._value_net_predict(
+        transitions[-1].next_state, sess))
     # Accumulate minibatch exmaples
     states = []
     policy_targets = []

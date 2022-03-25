@@ -36,15 +36,12 @@ FLAGS = tf.flags.FLAGS
 
 def make_env(wrap=True):
   env = gym.envs.make(FLAGS.env)
-  # remove the timelimitwrapper
-  env = env.env
-  if wrap:
-    env = atari_helpers.AtariEnvWrapper(env)
+  env = atari_helpers.AtariEnvWrapper(env) if wrap else env.env
   return env
 
 # Depending on the game we may have a limited action space
 env_ = make_env()
-if FLAGS.env == "Pong-v0" or FLAGS.env == "Breakout-v0":
+if FLAGS.env in ["Pong-v0", "Breakout-v0"]:
   VALID_ACTIONS = list(range(4))
 else:
   VALID_ACTIONS = list(range(env_.action_space.n))
@@ -92,14 +89,15 @@ with tf.device("/cpu:0"):
       worker_summary_writer = summary_writer
 
     worker = Worker(
-      name="worker_{}".format(worker_id),
-      env=make_env(),
-      policy_net=policy_net,
-      value_net=value_net,
-      global_counter=global_counter,
-      discount_factor = 0.99,
-      summary_writer=worker_summary_writer,
-      max_global_steps=FLAGS.max_global_steps)
+        name=f"worker_{worker_id}",
+        env=make_env(),
+        policy_net=policy_net,
+        value_net=value_net,
+        global_counter=global_counter,
+        discount_factor=0.99,
+        summary_writer=worker_summary_writer,
+        max_global_steps=FLAGS.max_global_steps,
+    )
     workers.append(worker)
 
   saver = tf.train.Saver(keep_checkpoint_every_n_hours=2.0, max_to_keep=10)
@@ -116,10 +114,8 @@ with tf.Session() as sess:
   sess.run(tf.global_variables_initializer())
   coord = tf.train.Coordinator()
 
-  # Load a previous checkpoint if it exists
-  latest_checkpoint = tf.train.latest_checkpoint(CHECKPOINT_DIR)
-  if latest_checkpoint:
-    print("Loading model checkpoint: {}".format(latest_checkpoint))
+  if latest_checkpoint := tf.train.latest_checkpoint(CHECKPOINT_DIR):
+    print(f"Loading model checkpoint: {latest_checkpoint}")
     saver.restore(sess, latest_checkpoint)
 
   # Start worker threads

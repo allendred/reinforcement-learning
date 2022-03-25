@@ -147,14 +147,14 @@ class ValueEstimator():
       # Summaries
       prefix = tf.get_variable_scope().name
       tf.summary.scalar(self.loss.name, self.loss)
-      tf.summary.scalar("{}/max_value".format(prefix), tf.reduce_max(self.logits))
-      tf.summary.scalar("{}/min_value".format(prefix), tf.reduce_min(self.logits))
-      tf.summary.scalar("{}/mean_value".format(prefix), tf.reduce_mean(self.logits))
-      tf.summary.scalar("{}/reward_max".format(prefix), tf.reduce_max(self.targets))
-      tf.summary.scalar("{}/reward_min".format(prefix), tf.reduce_min(self.targets))
-      tf.summary.scalar("{}/reward_mean".format(prefix), tf.reduce_mean(self.targets))
-      tf.summary.histogram("{}/reward_targets".format(prefix), self.targets)
-      tf.summary.histogram("{}/values".format(prefix), self.logits)
+      tf.summary.scalar(f"{prefix}/max_value", tf.reduce_max(self.logits))
+      tf.summary.scalar(f"{prefix}/min_value", tf.reduce_min(self.logits))
+      tf.summary.scalar(f"{prefix}/mean_value", tf.reduce_mean(self.logits))
+      tf.summary.scalar(f"{prefix}/reward_max", tf.reduce_max(self.targets))
+      tf.summary.scalar(f"{prefix}/reward_min", tf.reduce_min(self.targets))
+      tf.summary.scalar(f"{prefix}/reward_mean", tf.reduce_mean(self.targets))
+      tf.summary.histogram(f"{prefix}/reward_targets", self.targets)
+      tf.summary.histogram(f"{prefix}/values", self.logits)
 
       if trainable:
         # self.optimizer = tf.train.AdamOptimizer(1e-4)
